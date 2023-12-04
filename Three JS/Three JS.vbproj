@@ -95,6 +95,20 @@
     <Content Include="default.aspx" />
     <Content Include="js\test.js" />
     <Content Include="js\three.js" />
+    <Content Include="textures\rock.jpg" />
+    <Content Include="textures\rock_ao.jpg" />
+    <Content Include="textures\rock_disp.jpg" />
+    <Content Include="textures\rock_metal.jpg" />
+    <Content Include="textures\rock_normal.jpg" />
+    <Content Include="textures\rock_normaldx.jpg" />
+    <Content Include="textures\rock_rough.jpg" />
+    <Content Include="textures\wood.jpg" />
+    <Content Include="textures\wood_ao.jpg" />
+    <Content Include="textures\wood_disp.jpg" />
+    <Content Include="textures\wood_metal.jpg" />
+    <Content Include="textures\wood_normal.jpg" />
+    <Content Include="textures\wood_normaldx.jpg" />
+    <Content Include="textures\wood_rough.jpg" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

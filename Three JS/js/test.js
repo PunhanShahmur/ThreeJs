@@ -8,15 +8,17 @@ let spotlight;
 let directionalLight;
 let pointLight;
 let ambientLight;
+let aoi;
+let disp;
 
 function createScene() {
 //Sehne yaratmaq
     scene = new THREE.Scene();
-
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.x = 15;
-    camera.position.y = 15;
-    camera.position.z = 15;
+    //scene.background = new THREE.Color(0xffffff) //sehne backgroundu
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000); 
+    camera.position.x = 5; 
+    camera.position.y = 5;
+    camera.position.z = 5;
     //Camera duz obyekte baxmaq
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -63,8 +65,8 @@ function createScene() {
     
 
 
-    createMesh('square', 1, 2, 2, 1, 2, 2, 0x00ff00);
-    createMesh('square2', 30, 2, 30,0,0,0, 0x00ff00);
+    createMesh('square', 1, 2, 2, 1, 2, 2, 'wood');
+    createMesh('square2', 60, 2, 60,0,0,0, 'rock');
     //createSpotLight()
     //createDirectionalLight()
     createPointLight()
@@ -76,13 +78,63 @@ function createScene() {
 
 }
 
-function createMesh(name,w,h,d,x,y,z,color) {
+function createMesh(name,w,h,d,x,y,z,texture) {
 
-    let geometry = new THREE.BoxGeometry(w, h, d);
+    let geometry = new THREE.BoxGeometry(w, h, d, 100, 100, 100);
     let material = new THREE.MeshStandardMaterial({
-        color: color
+        color: 0xffffff
     });
 
+    let loader = new THREE.TextureLoader();
+    material.map = loader.load('../textures/' + texture + '.jpg')
+    material.aoMap = loader.load('../textures/' + texture + '_ao.jpg')
+    material.normalMap = loader.load('../textures/' + texture + '_normal.jpg') //isiq sacmagi ucun
+    material.roughnessMap = loader.load('../textures/' + texture + '_rough.jpg') //isiq cox dusen yerleri cox parlaq olur onlari azalmaq ucun
+    material.metalnessMap = loader.load('../textures/' + texture + '_metal.jpg') //metallasdirmaq ucun
+    //material.displacementMap = loader.load('../textures/' + texture + '_disp.jpg') //qabartmaq ucun
+    //material.displacementBias = 0 // Displacement edib qabardandan sora uzler ayrilir birlesdirmek ucun BIAS
+    //material.displacementScale = 0
+
+
+    //Bu cox onemli olan texture-un tekrar tekrar olmasi ucun her map-e verilmelidir
+    material.map.wrapS = THREE.RepeatWrapping;
+    material.map.wrapT = THREE.RepeatWrapping;
+    material.map.repeat = new THREE.Vector2(5, 5); // x ve y kimi basa dus ama ratio-nu her texture-a gore tutmaq lazimdir
+
+    material.aoMap.wrapS = THREE.RepeatWrapping;
+    material.aoMap.wrapT = THREE.RepeatWrapping;
+    material.aoMap.repeat = new THREE.Vector2(5, 5);
+
+    material.normalMap.wrapS = THREE.RepeatWrapping;
+    material.normalMap.wrapT = THREE.RepeatWrapping;
+    material.normalMap.repeat = new THREE.Vector2(5, 5);
+
+    material.roughnessMap.wrapS = THREE.RepeatWrapping;
+    material.roughnessMap.wrapT = THREE.RepeatWrapping;
+    material.roughnessMap.repeat = new THREE.Vector2(5, 5);
+
+    material.metalnessMap.wrapS = THREE.RepeatWrapping;
+    material.metalnessMap.wrapT = THREE.RepeatWrapping;
+    material.metalnessMap.repeat = new THREE.Vector2(5, 5);
+    
+
+
+
+    //material.emissive = new THREE.Color(0xff0000) default qara
+    material.transparent = true
+    //material.opacity = 0.5 
+
+    //Ambient O intensity GUI
+
+    aoi.add(parameters, 'value', 0, 1).step(0.01).onChange(value => {
+        material.aoMap.intensity = value
+    });
+
+    //Dispacement GUI
+
+    disp.add(parameters, 'value', 0, 1).step(0.01).onChange(value => {
+        material.displacementScale = value
+    });
 
 
     let mesh = new THREE.Mesh(geometry, material);
@@ -149,7 +201,6 @@ function createPointLight() {
 
 
 //GUI
-{
     let gui = new dat.GUI();
     let parameters = {
         color: '#00ff00',
@@ -161,6 +212,8 @@ function createPointLight() {
     };
 
 
+    let c = gui.addFolder('Camera')
+
     let fp = gui.addFolder('Position')
     let fr = gui.addFolder('Rotation')
     let fc = gui.addFolder('Color')
@@ -170,6 +223,26 @@ function createPointLight() {
     //let dlt = gui.addFolder('Directional Light Target')
     let pl = gui.addFolder('Point Light')
     let al = gui.addFolder('Ambient Light')
+    aoi = gui.addFolder('AO intensity Map')
+    disp = gui.addFolder('Displacement Map')
+
+
+
+    c.add(parameters, 'value', -100, 100).step(0.01).onChange(value => {
+
+        camera.position.x = value
+    });
+
+    c.add(parameters, 'value', -100, 100).step(0.01).onChange(value => {
+
+        camera.position.y = value
+    });
+
+    c.add(parameters, 'value', -100, 100).step(0.01).onChange(value => {
+
+        camera.position.z = value
+    });
+
 
     fc.addColor(parameters, 'color').onChange(value => {
         scene.getObjectByName('square').material.color.set(value)
@@ -291,10 +364,10 @@ function createPointLight() {
     });
 
 
+
     //fp.add(parameters, 'toggle').onChange(value => {
 
     //});
-}
 
 
 
